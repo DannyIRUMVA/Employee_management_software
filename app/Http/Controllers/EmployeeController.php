@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Models\Attendance;
 use Validator;
 
 class EmployeeController extends Controller
@@ -15,18 +16,36 @@ class EmployeeController extends Controller
     {
         $employees = Employee::latest()->get();
 
-        if (is_null($employees->first())) {
-
+        if ($employees->isEmpty()) {
             return response()->json([
-                'names' => 'failed',
+                'status' => 'failed',
                 'message' => 'No employee found!',
             ], 200);
+        }
 
+        foreach ($employees as $employee) {
+            $attendanceRecords = Attendance::where('employee_id', $employee->id)
+                ->whereNotNull('check_in_time')
+                ->whereNotNull('check_out_time')
+                ->get(['check_in_time', 'check_out_time']);
+
+            $formattedAttendance = [];
+
+            foreach ($attendanceRecords as $attendance) {
+                $formattedAttendance[] = [
+                    'date' => date('Y-m-d', strtotime($attendance->check_in_time)),
+                    'check_in' => date('H:i:s', strtotime($attendance->check_in_time)),
+                    'check_out' => date('H:i:s', strtotime($attendance->check_out_time)),
+                ];
+            }
+
+            $employee->attendance = $formattedAttendance;
+            $employee->makeHidden(['created_at', 'updated_at']);
         }
 
         $response = [
             'status' => 'success',
-            'message' => 'Employees are retrieved succesfully.',
+            'message' => 'Employees are retrieved successfully with attendance records.',
             'data' => $employees,
         ];
 
