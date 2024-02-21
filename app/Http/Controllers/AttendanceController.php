@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use App\Jobs\SendAttendanceEmail;
+use App\Jobs\SendCheckInNotificationEmail;
+
 
 class AttendanceController extends Controller
 {
@@ -80,12 +83,25 @@ class AttendanceController extends Controller
         //
     }
 
+    // public function checkIn(Request $request, $employeeId)
+    // {
+    //     $attendance = new Attendance();
+    //     $attendance->employee_id = $employeeId;
+    //     $attendance->check_in_time = now();
+    //     $attendance->save();
+
+    //     return response()->json(['message' => 'Check-in successful'], 200);
+    // }
+
     public function checkIn(Request $request, $employeeId)
     {
         $attendance = new Attendance();
         $attendance->employee_id = $employeeId;
         $attendance->check_in_time = now();
         $attendance->save();
+
+        // Dispatch the job to send the check-in notification email
+        dispatch(new SendCheckInNotificationEmail($attendance->employee->email, $attendance->check_in_time));
 
         return response()->json(['message' => 'Check-in successful'], 200);
     }

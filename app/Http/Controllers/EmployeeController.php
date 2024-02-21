@@ -33,9 +33,9 @@ class EmployeeController extends Controller
 
             foreach ($attendanceRecords as $attendance) {
                 $formattedAttendance[] = [
-                    'date' => date('Y-m-d', strtotime($attendance->check_in_time)),
-                    'check_in' => date('H:i:s', strtotime($attendance->check_in_time)),
-                    'check_out' => date('H:i:s', strtotime($attendance->check_out_time)),
+                    'Date' => date('Y-m-d', strtotime($attendance->check_in_time)),
+                    'Arrive at' => date('H:i:s', strtotime($attendance->check_in_time)),
+                    'Leave at' => date('H:i:s', strtotime($attendance->check_out_time)),
                 ];
             }
 
