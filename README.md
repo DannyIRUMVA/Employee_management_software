@@ -1,10 +1,24 @@
-**Project Name README**
+**Employee_management_software README**
 
 ---
 
 ### Project Description
 
-This project is a [brief description of your project]. It is built using [list of technologies/frameworks used]. The project aims to [briefly explain the purpose or goal of the project].
+This project is a Backend API Server for Employee Management with Attendance Recording and Reporting. 
+It is built using 
+**Laravel 10**
+**PHP Unit/Pest for tests**
+**Laravel Sail**
+**Laravel Sanctum for authentication**
+**laravel-snappy(for pdf reports)**
+**Laravel Excel(for excel reports)**
+**Mailpit**. 
+The project aims to:
+Full authentication system using Sanctum(Register, Login, Logout, Forgot password, Password reset)
+Employee CRUD, with minimum fields(names,email,employeeIdentifier,phoneNumber) all we care about is the thing to work
+Attendance management, record when an employee arrives at the office and when they leave
+Send email(using queues) to the employee when an attendance record is made
+Generate attendance report(pdf & excel) with daily attendance data.
 
 ---
 
