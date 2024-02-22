@@ -9,6 +9,8 @@ use Validator;
 
 class AuthController extends Controller
 {
+    //register
+
     public function register(Request $request)
     {
         $validate = Validator::make($request->all(), [
@@ -43,12 +45,8 @@ class AuthController extends Controller
         return response()->json($response, 201);
     }
 
-    /**
-     * Authenticate the user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Authenticate the user.
+
     public function login(Request $request)
     {
         $validate = Validator::make($request->all(), [
@@ -64,10 +62,8 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Check email exist
         $user = User::where('email', $request->email)->first();
 
-        // Check password
         if(!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => 'failed',
@@ -87,12 +83,8 @@ class AuthController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * Log out the user from application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    //sign out
+
     public function logout(Request $request)
     {
         auth()->user()->tokens()->delete();

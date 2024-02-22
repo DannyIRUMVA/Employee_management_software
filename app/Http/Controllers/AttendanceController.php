@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
-use App\Jobs\SendAttendanceEmail;
+use App\Jobs\SendDepartureNotificationEmail;
 use App\Jobs\SendCheckInNotificationEmail;
 
 
@@ -83,16 +83,6 @@ class AttendanceController extends Controller
         //
     }
 
-    // public function checkIn(Request $request, $employeeId)
-    // {
-    //     $attendance = new Attendance();
-    //     $attendance->employee_id = $employeeId;
-    //     $attendance->check_in_time = now();
-    //     $attendance->save();
-
-    //     return response()->json(['message' => 'Check-in successful'], 200);
-    // }
-
     public function checkIn(Request $request, $employeeId)
     {
         $attendance = new Attendance();
@@ -101,25 +91,32 @@ class AttendanceController extends Controller
         $attendance->save();
 
         // Dispatch the job to send the check-in notification email
-        dispatch(new SendCheckInNotificationEmail($attendance->employee->email, $attendance->check_in_time));
+        SendCheckInNotificationEmail::dispatch($attendance->employee->email, $attendance->check_in_time);
 
         return response()->json(['message' => 'Check-in successful'], 200);
     }
 
     public function checkOut(Request $request, $employeeId)
     {
+        // Find the latest check-in record for the employee
         $attendance = Attendance::where('employee_id', $employeeId)
             ->whereNull('check_out_time')
             ->latest()
             ->first();
 
+        // If no check-in record is found, return an error response
         if (!$attendance) {
             return response()->json(['error' => 'No check-in record found'], 400);
         }
 
+        // Update the check-out time and save the attendance record
         $attendance->check_out_time = now();
         $attendance->save();
 
+        // Dispatch the job to send the departure notification email
+        // SendDepartureNotificationEmail::dispatch($attendance->employee->email, $attendance->check_out_time);
+
+        // Return a success response
         return response()->json(['message' => 'Check-out successful'], 200);
     }
 }

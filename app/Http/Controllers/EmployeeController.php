@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
+use App\Exports\DailyAttendanceExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 use Validator;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+    // Display a listing of the resource.
+
     public function index()
     {
         $employees = Employee::latest()->get();
@@ -24,6 +28,7 @@ class EmployeeController extends Controller
         }
 
         foreach ($employees as $employee) {
+
             $attendanceRecords = Attendance::where('employee_id', $employee->id)
                 ->whereNotNull('check_in_time')
                 ->whereNotNull('check_out_time')
@@ -52,9 +57,8 @@ class EmployeeController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    //store an employee
+
     public function store(Request $request)
     {
         $validate = Validator::make($request->all(), [
@@ -83,9 +87,9 @@ class EmployeeController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+    //retrieve employee
+
     public function show($id)
     {
         $employees = Employee::find($id);
@@ -106,9 +110,8 @@ class EmployeeController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // update an employee
+
     public function update(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
@@ -145,9 +148,8 @@ class EmployeeController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+   // Delete an employee
+
     public function destroy($id)
     {
         $employees = Employee::find($id);
@@ -184,5 +186,27 @@ class EmployeeController extends Controller
         ];
 
         return response()->json($response, 200);
+    }
+    //excel exporting
+
+
+    public function downloadExcel()
+    {
+        $currentDate = Carbon::today()->toDateString(); // Get current date
+
+        $employees = Employee::with(['attendance' => function ($query) use ($currentDate) {
+            $query->whereDate('check_in_time', $currentDate);
+        }])->latest()->get();
+
+        $fileName = 'employees_attendance.xlsx';
+
+        // Generate Excel file
+        $export = new DailyAttendanceExport($employees, $currentDate);
+
+            // Store Excel file to local storage
+        Excel::store($export, $fileName);
+
+        // Return the file path for download
+        return Storage::download($fileName);
     }
 }

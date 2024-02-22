@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Jobs;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -9,32 +7,32 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class SendCheckInNotificationEmail implements ShouldQueue
+class SendDepartureNotificationEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $employeeEmail;
-    protected $checkInTime;
+    protected $checkOutTime;
 
-    public function __construct($employeeEmail, $checkInTime)
+    public function __construct($employeeEmail, $checkOutTime)
     {
         $this->employeeEmail = $employeeEmail;
-        $this->checkInTime = $checkInTime;
+        $this->checkOutTime = $checkOutTime;
     }
 
     public function handle()
     {
         // Construct the email message
-        $message = '<p>You have successfully Arrived at ' . $this->checkInTime . 'at Job</p>';
+        $message = '<p>You have successfully left the job at ' . $this->checkOutTime . '.</p>';
 
         // Send the email using Mailtrap
         Mail::raw($message, function ($mail) {
             $mail->to($this->employeeEmail)
                 ->from('admin@employee.io')
-                ->subject('Arriving at Job');
+                ->subject('Departure from Job');
         });
 
         // Log success message
-        \Log::info('Check-in notification email sent successfully.');
+        \Log::info('Departure notification email sent successfully.');
     }
 }

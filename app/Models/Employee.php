@@ -16,4 +16,9 @@ class Employee extends Model
         'employeeIdentifier',
         'phoneNumber'
     ];
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }
