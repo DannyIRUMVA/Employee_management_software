@@ -17,9 +17,6 @@ Follow these steps to deploy and run the project in your local environment using
 Make sure you have the following installed on your machine:
 
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
-- [Composer](https://getcomposer.org/)
-- [Node.js](https://nodejs.org/) (version X.X.X)
-- [npm](https://www.npmjs.com/) (comes with Node.js)
 
 #### Steps
 
