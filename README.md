@@ -23,7 +23,7 @@ Make sure you have the following installed on your machine:
 1. **Clone the Repository:**
 
     ```bash
-    git clone https://github.com/your-username/your-repository.git
+    https://github.com/DannyIRUMVA/Employee_management_software.git
     ```
 
 2. **Start Laravel Sail:**
@@ -31,7 +31,7 @@ Make sure you have the following installed on your machine:
     Navigate to your project directory and run the following command to start Laravel Sail:
 
     ```bash
-    cd your-repository
+    cd Employee_management_software
     ./vendor/bin/sail up -d
     ```
 
@@ -41,7 +41,6 @@ Make sure you have the following installed on your machine:
 
     ```bash
     ./vendor/bin/sail composer install
-    ./vendor/bin/sail npm install
     ```
 
 4. **Setup Environment Variables:**
@@ -51,7 +50,7 @@ Make sure you have the following installed on your machine:
 5. **Generate Application Key:**
 
     ```bash
-    ./vendor/bin/sail artisan key:generate
+    php artisan key:generate
     ```
 
 6. **Database Migration:**
@@ -59,7 +58,7 @@ Make sure you have the following installed on your machine:
     Run the database migrations to create the necessary tables:
 
     ```bash
-    ./vendor/bin/sail artisan migrate
+    php artisan migrate
     ```
 
 7. **Run the Application:**
@@ -75,7 +74,7 @@ Make sure you have the following installed on your machine:
     To run tests, use the following command:
 
     ```bash
-    ./vendor/bin/sail artisan test
+    php artisan test
     ```
 
 ---
