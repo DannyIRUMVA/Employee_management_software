@@ -8,6 +8,8 @@ use App\Models\Attendance;
 use App\Exports\DailyAttendanceExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\Snappy\Facades\SnappyPdf;
+use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
 use Validator;
 
@@ -169,6 +171,8 @@ class EmployeeController extends Controller
         ], 200);
     }
 
+    //Searching an employee
+
     public function search($name) {
         $employees = Employee::where('names', 'like', '%'.$name.'%')->latest()->get();
 
@@ -187,26 +191,65 @@ class EmployeeController extends Controller
 
         return response()->json($response, 200);
     }
-    //excel exporting
+
+    //exporting sheet file
 
 
     public function downloadExcel()
     {
-        $currentDate = Carbon::today()->toDateString(); // Get current date
+        $currentDate = Carbon::today()->format('Y-m-d');
 
         $employees = Employee::with(['attendance' => function ($query) use ($currentDate) {
             $query->whereDate('check_in_time', $currentDate);
         }])->latest()->get();
 
-        $fileName = 'employees_attendance.xlsx';
+            $fileName = 'attendance_on_' . $currentDate . '.xlsx';
 
-        // Generate Excel file
         $export = new DailyAttendanceExport($employees, $currentDate);
 
-            // Store Excel file to local storage
         Excel::store($export, $fileName);
 
-        // Return the file path for download
-        return Storage::download($fileName);
+        $filePath = Storage::url($fileName);
+
+        return response()->json(['Here is Path' => $filePath]);
+    }
+
+    //exporting attendance pdf file
+
+    public function downloadPDFReport()
+    {
+
+    $employees = Employee::latest()->get();
+
+    if ($employees->isEmpty()) {
+        return response()->json([
+            'status' => 'failed',
+            'message' => 'No employee found!',
+        ], 200);
+    }
+
+    foreach ($employees as $employee) {
+        $attendanceRecords = Attendance::where('employee_id', $employee->id)
+            ->whereNotNull('check_in_time')
+            ->whereNotNull('check_out_time')
+            ->get(['check_in_time', 'check_out_time']);
+
+        $formattedAttendance = [];
+
+        foreach ($attendanceRecords as $attendance) {
+            $formattedAttendance[] = [
+                'Date' => date('Y-m-d', strtotime($attendance->check_in_time)),
+                'Arrive at' => date('H:i:s', strtotime($attendance->check_in_time)),
+                'Leave at' => date('H:i:s', strtotime($attendance->check_out_time)),
+            ];
+        }
+
+        $employee->attendance = $formattedAttendance;
+        $employee->makeHidden(['created_at', 'updated_at']);
+    }
+
+    $pdf = SnappyPdf::loadView('pdf-report', compact('employees'));
+
+    return $pdf->download('employees_report.pdf');
     }
 }

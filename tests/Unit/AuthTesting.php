@@ -2,24 +2,15 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use App\Models\User;
 
-class UserTest extends TestCase
+class AuthTesting extends TestCase
 {
-    use RefreshDatabase; // Use RefreshDatabase instead of DatabaseTransactions
-
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
-        $response->assertStatus(200);
-    }
+    use DatabaseTransactions;
 
     /**
      * Test user registration.
@@ -37,7 +28,7 @@ class UserTest extends TestCase
 
         $response = $this->json('POST', '/register', $userData);
 
-        $response->assertStatus(200) // Corrected status code to 200
+        $response->assertStatus(201)
                  ->assertJson([
                      'status' => 'success',
                      'message' => 'User is created successfully.',
@@ -63,7 +54,7 @@ class UserTest extends TestCase
 
         $response = $this->json('POST', '/login', $loginData);
 
-        $response->assertStatus(200) // Corrected status code to 200
+        $response->assertStatus(200)
                  ->assertJson([
                      'status' => 'success',
                      'message' => 'User is logged in successfully.',
@@ -84,7 +75,7 @@ class UserTest extends TestCase
             'Authorization' => 'Bearer ' . $token,
         ])->json('POST', '/logout');
 
-        $response->assertStatus(200) // Corrected status code to 200
+        $response->assertStatus(200)
                  ->assertJson([
                      'status' => 'success',
                      'message' => 'User is logged out successfully',
@@ -104,7 +95,7 @@ class UserTest extends TestCase
 
         $response = $this->json('POST', '/forgot-password', $userData);
 
-        $response->assertStatus(200) // Corrected status code to 200
+        $response->assertStatus(200)
                  ->assertJson([
                      'message' => 'Password reset link sent successfully.',
                  ]);

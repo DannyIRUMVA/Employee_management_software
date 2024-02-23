@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Validator;
 
 class AuthController extends Controller
 {
-    //register
+
+    // registering user
 
     public function register(Request $request)
     {
@@ -19,7 +23,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed'
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Validation Error!',
@@ -83,6 +87,7 @@ class AuthController extends Controller
         return response()->json($response, 200);
     }
 
+
     //sign out
 
     public function logout(Request $request)
@@ -93,4 +98,26 @@ class AuthController extends Controller
             'message' => 'User is logged out successfully'
             ], 200);
     }
+
+    // reseting password
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $response = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($response === 'passwords.sent') {
+            $newPassword = Str::random(10);
+
+            return response()->json(['message' => __('Password reset link sent successfully.'), 'new_password' => $newPassword], 200);
+        } else {
+            return response()->json(['message' => __('Unable to send password reset link.')], 400);
+        }
+    }
+
 }

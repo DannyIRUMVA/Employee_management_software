@@ -8,31 +8,30 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use App\Models\Attendance;
-use Carbon\Carbon;
 
-class SendCheckInNotificationEmail implements ShouldQueue
+class SendDepartureNotificationEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $employeeEmail;
-    protected $checkInTime;
+    protected $checkOutTime;
 
-    public function __construct($employeeEmail, $checkInTime)
+    public function __construct($employeeEmail, $checkOutTime)
     {
         $this->employeeEmail = $employeeEmail;
-        $this->checkInTime = $checkInTime;
+        $this->checkOutTime = $checkOutTime;
     }
 
     public function handle()
     {
-        $message = '<p>You have successfully checked in at ' . $this->checkInTime . '.</p>';
+        $message = '<p>You have successfully Checked out at ' . $this->checkOutTime . ' from Job</p>';
 
         Mail::raw($message, function ($mail) {
             $mail->to($this->employeeEmail)
-                ->from('admin@example.com')
-                ->subject('Check-In Notification');
+                ->from('admin@employee.io')
+                ->subject('Checking out from Job');
         });
+
+        \Log::info('Check-out notification email sent successfully.');
     }
 }
-
